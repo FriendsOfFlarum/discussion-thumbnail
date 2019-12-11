@@ -1,0 +1,36 @@
+{
+  "name": "fof/discussion-thumbnail",
+  "description": "Replace author avatars with the first image in a discussion's starting post",
+  "keywords": ["flarum", "friendsofflarum"],
+  "type": "flarum-extension",
+  "license": "MIT",
+  "require": {
+    "flarum/core": "^0.1.0-beta.8"
+  },
+  "authors": [
+    {
+      "name": "David Sevilla Martin",
+      "email": "me+fof@datitisev.me",
+      "homepage": "https://datitisev.me",
+      "role": "Developer"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "FoF\\DiscussionThumbnail\\": "src/"
+    }
+  },
+  "extra": {
+    "flarum-extension": {
+      "title": "FoF Discussion Thumbnail",
+      "icon": {
+        "name": "fas fa-image",
+        "backgroundColor": "#e74c3c",
+        "color": "#fff"
+      }
+    },
+    "flagrow": {
+      "discuss": ""
+    }
+  }
+}
