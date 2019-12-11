@@ -21,5 +21,5 @@ return [
         ->css(__DIR__.'/less/forum.less'),
     new Extend\Compat(function (Dispatcher $events) {
         $events->listen(Serializing::class, Listener\AddDiscussionThumbnail::class);
-    })
+    }),
 ];

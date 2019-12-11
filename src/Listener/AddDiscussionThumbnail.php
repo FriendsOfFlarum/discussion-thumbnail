@@ -29,7 +29,8 @@ class AddDiscussionThumbnail
         $this->cache = $cache;
     }
 
-    public function handle(Serializing $event) {
+    public function handle(Serializing $event)
+    {
         if ($event->isSerializer(BasicDiscussionSerializer::class)) {
             $post = $event->model->firstPost;
 
@@ -40,7 +41,6 @@ class AddDiscussionThumbnail
             $key = "fof-discussion-thumbnail.discussion.{$post->id}";
             $cached = $this->cache->get($key);
             $thumbnail = Arr::get($cached, 'url');
-
 
             if (!$this->cache->has($key) || ($post->edited_at && Arr::has($cached, 'date') && $post->edited_at->isAfter($cached['date']))) {
                 $content = $event->model->firstPost->formatContent();
@@ -54,12 +54,10 @@ class AddDiscussionThumbnail
                 $thumbnail = @$match[1];
 
                 $this->cache->forever($key, $match ? [
-                    'url' => @$match[1],
-                    'date' => $post->edited_at
+                    'url'  => @$match[1],
+                    'date' => $post->edited_at,
                 ] : null);
             }
-
-
 
             $event->attributes['customThumbnail'] = $thumbnail;
         }
