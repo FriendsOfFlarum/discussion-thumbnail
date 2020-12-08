@@ -13,13 +13,11 @@ namespace FoF\DiscussionThumbnail;
 
 use Flarum\Api\Event\Serializing;
 use Flarum\Extend;
-use Illuminate\Contracts\Events\Dispatcher;
 
 return [
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
         ->css(__DIR__.'/less/forum.less'),
-    new Extend\Compat(function (Dispatcher $events) {
-        $events->listen(Serializing::class, Listener\AddDiscussionThumbnail::class);
-    }),
+    (new Extend\Event())
+        ->listen(Serializing::class, Listener\AddDiscussionThumbnail::class),
 ];

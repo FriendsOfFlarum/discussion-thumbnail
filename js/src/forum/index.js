@@ -7,13 +7,13 @@ import DiscussionListItem from 'flarum/components/DiscussionListItem';
 
 import DiscussionThumbnail from './components/DiscussionThumbnail';
 
-const find = (obj, clazz) => obj && obj.children && obj.children.filter(e => get(e, 'attrs.className', '').indexOf(clazz) !== -1)[0];
+const find = (obj, clazz) => obj && obj.children && obj.children.filter((e) => get(e, 'attrs.className', '').indexOf(clazz) !== -1)[0];
 
 app.initializers.add('fof/discussion-thumbnail', () => {
     Discussion.prototype.customThumbnail = Model.attribute('customThumbnail');
 
-    extend(DiscussionListItem.prototype, 'view', function(vdom) {
-        const image = this.props.discussion.customThumbnail();
+    extend(DiscussionListItem.prototype, 'view', function (vdom) {
+        const image = this.attrs.discussion.customThumbnail();
 
         if (!image) return;
 
@@ -25,6 +25,6 @@ app.initializers.add('fof/discussion-thumbnail', () => {
 
         delete avatar.attrs.src;
 
-        author.children[author.children.indexOf(avatar)] = <DiscussionThumbnail attrs={avatar.attrs} src={image} />;
+        author.children[author.children.indexOf(avatar)] = <DiscussionThumbnail elementAttrs={avatar.attrs} src={image} />;
     });
 });
