@@ -11,8 +11,8 @@
 
 namespace FoF\DiscussionThumbnail\Listener;
 
-use Flarum\Api\Event\Serializing;
 use Flarum\Api\Serializer\BasicDiscussionSerializer;
+use Flarum\Discussion\Discussion;
 use Flarum\Post\CommentPost;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\Arr;
@@ -29,37 +29,37 @@ class AddDiscussionThumbnail
         $this->cache = $cache;
     }
 
-    public function handle(Serializing $event)
+    public function __invoke(BasicDiscussionSerializer $serializer, Discussion $discussion)
     {
-        if ($event->isSerializer(BasicDiscussionSerializer::class)) {
-            $post = $event->model->firstPost;
+        $post = $discussion->firstPost;
 
-            if (!($post instanceof CommentPost)) {
+        if (!($post instanceof CommentPost)) {
+            return;
+        }
+
+        $key = "fof-discussion-thumbnail.discussion.{$post->id}";
+        $cached = $this->cache->get($key);
+        $thumbnail = Arr::get($cached, 'url');
+
+        if (!$this->cache->has($key) || ($post->edited_at && Arr::has($cached, 'date') && $post->edited_at->isAfter($cached['date']))) {
+            $content = $discussion->firstPost->formatContent();
+
+            if (!$content) {
                 return;
             }
 
-            $key = "fof-discussion-thumbnail.discussion.{$post->id}";
-            $cached = $this->cache->get($key);
-            $thumbnail = Arr::get($cached, 'url');
+            preg_match('/<img.+?src=[\"\'](.+?)[\"\'].*?>/i', $content, $match);
 
-            if (!$this->cache->has($key) || ($post->edited_at && Arr::has($cached, 'date') && $post->edited_at->isAfter($cached['date']))) {
-                $content = $event->model->firstPost->formatContent();
+            $thumbnail = @$match[1];
 
-                if (!$content) {
-                    return;
-                }
-
-                preg_match('/<img.+?src=[\"\'](.+?)[\"\'].*?>/i', $content, $match);
-
-                $thumbnail = @$match[1];
-
-                $this->cache->forever($key, $match ? [
-                    'url'  => @$match[1],
-                    'date' => $post->edited_at,
-                ] : null);
-            }
-
-            $event->attributes['customThumbnail'] = $thumbnail;
+            $this->cache->forever($key, $match ? [
+                'url'  => @$match[1],
+                'date' => $post->edited_at,
+            ] : null);
         }
+
+        $attributes['customThumbnail'] = $thumbnail;
+
+        return $attributes;
     }
 }

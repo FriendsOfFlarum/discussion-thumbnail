@@ -11,13 +11,14 @@
 
 namespace FoF\DiscussionThumbnail;
 
-use Flarum\Api\Event\Serializing;
+use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Extend;
 
 return [
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
         ->css(__DIR__.'/less/forum.less'),
-    (new Extend\Event())
-        ->listen(Serializing::class, Listener\AddDiscussionThumbnail::class),
+
+    (new Extend\ApiSerializer(BasicDiscussionSerializer::class))
+        ->mutate(Listener\AddDiscussionThumbnail::class),
 ];
