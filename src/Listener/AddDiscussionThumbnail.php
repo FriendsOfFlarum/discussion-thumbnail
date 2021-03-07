@@ -34,7 +34,7 @@ class AddDiscussionThumbnail
         $post = $discussion->firstPost;
 
         if (!($post instanceof CommentPost)) {
-            return;
+            return [];
         }
 
         $key = "fof-discussion-thumbnail.discussion.{$post->id}";
@@ -45,7 +45,7 @@ class AddDiscussionThumbnail
             $content = $discussion->firstPost->formatContent();
 
             if (!$content) {
-                return;
+                return [];
             }
 
             preg_match('/<img.+?src=[\"\'](.+?)[\"\'].*?>/i', $content, $match);
