@@ -1,9 +1,9 @@
 import get from 'lodash/get';
 
-import { extend } from 'flarum/extend';
-import Model from 'flarum/Model';
-import Discussion from 'flarum/models/Discussion';
-import DiscussionListItem from 'flarum/components/DiscussionListItem';
+import { extend } from 'flarum/common/extend';
+import Model from 'flarum/common/Model';
+import Discussion from 'flarum/common/models/Discussion';
+import DiscussionListItem from 'flarum/forum/components/DiscussionListItem';
 
 import DiscussionThumbnail from './components/DiscussionThumbnail';
 
