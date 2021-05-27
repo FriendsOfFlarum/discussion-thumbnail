@@ -4,6 +4,7 @@ import { extend } from 'flarum/common/extend';
 import Model from 'flarum/common/Model';
 import Discussion from 'flarum/common/models/Discussion';
 import DiscussionListItem from 'flarum/forum/components/DiscussionListItem';
+import Tooltip from 'flarum/common/components/Tooltip';
 
 import DiscussionThumbnail from './components/DiscussionThumbnail';
 
@@ -18,7 +19,11 @@ app.initializers.add('fof/discussion-thumbnail', () => {
         if (!image) return;
 
         const content = find(vdom, 'DiscussionListItem-content');
-        const author = find(content, 'DiscussionListItem-author');
+
+        if (!content || !content.children) return;
+
+        const tooltip = content.children.find((e) => e.tag && e.tag === Tooltip);
+        const author = find(tooltip, 'DiscussionListItem-author');
         const avatar = find(author, 'Avatar');
 
         if (!avatar) return;
