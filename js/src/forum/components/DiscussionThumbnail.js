@@ -1,5 +1,6 @@
 import Component from 'flarum/common/Component';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+import classList from 'flarum/common/utils/classList';
 
 import 'object.assign/auto';
 import 'intersection-observer';
@@ -7,10 +8,6 @@ import 'intersection-observer';
 const loadedSet = new Set();
 
 export default class DiscussionThumbnail extends Component {
-    oninit(vnode) {
-        super.oninit(vnode);
-    }
-
     view() {
         const attrs = { ...this.attrs.elementAttrs };
         const loaded = loadedSet.has(this.attrs.src);
@@ -29,7 +26,7 @@ export default class DiscussionThumbnail extends Component {
         attrs[loaded ? 'src' : 'data-src'] = this.attrs.src;
 
         return (
-            <div className={attrs.className}>
+            <div className={classList(attrs.className, 'DiscussionListItem-thumbnail')}>
                 {!loaded && <LoadingIndicator />}
                 <img {...attrs} />
             </div>
@@ -57,6 +54,6 @@ export default class DiscussionThumbnail extends Component {
 
         img.style.opacity = 1;
 
-        this.$('.LoadingIndicator').remove();
+        this.$('.LoadingIndicator-container').remove();
     }
 }
