@@ -22,7 +22,7 @@ app.initializers.add('fof/discussion-thumbnail', () => {
 
         if (!content || !content.children) return;
 
-        const tooltip = content.children.find((e) => e.tag && e.tag === Tooltip);
+        const tooltip = content.children.find((e) => e?.tag === Tooltip);
         const author = find(tooltip, 'DiscussionListItem-author');
         const avatar = find(author, 'Avatar');
 
