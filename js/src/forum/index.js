@@ -31,5 +31,9 @@ app.initializers.add('fof/discussion-thumbnail', () => {
         delete avatar.attrs.src;
 
         author.children[author.children.indexOf(avatar)] = <DiscussionThumbnail elementAttrs={avatar.attrs} src={image} />;
+
+        if (app.forum.attribute('fof-discussion-thumbnail.link_to_discussion')) {
+            author.attrs.href = app.route.discussion(this.attrs.discussion);
+        }
     });
 });
