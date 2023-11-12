@@ -42,7 +42,7 @@ class AddDiscussionThumbnail
         $thumbnail = Arr::get($cached, 'url');
 
         if (!$this->cache->has($key) || ($post->edited_at && Arr::has($cached, 'date') && $post->edited_at->isAfter($cached['date']))) {
-            $content = $discussion->firstPost->formatContent();
+            $content = $post->formatContent();
 
             if (!$content) {
                 return [];
