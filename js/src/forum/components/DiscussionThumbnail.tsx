@@ -13,13 +13,25 @@ export default class DiscussionThumbnail extends Component<DiscussionThumbnailAt
       <img
         className="DiscussionListItem-thumbnail"
         src={this.attrs.src}
-        onerror={this.onError.bind(this)}
+        oncreate={this.attachErrorHandler.bind(this)}
+        onupdate={this.attachErrorHandler.bind(this)}
       />
     );
   }
 
-  onError(): void {
-    failedSet.add(this.attrs.src);
-    m.redraw();
+  attachErrorHandler(vnode: Mithril.VnodeDOM): void {
+    const img = vnode.dom as HTMLImageElement;
+
+    img.onerror = () => {
+      failedSet.add(this.attrs.src);
+      m.redraw();
+    };
+
+    // If the image already errored before oncreate fired (e.g. instant 404),
+    // naturalWidth === 0 and complete === true indicates a broken image.
+    if (img.complete && img.naturalWidth === 0) {
+      failedSet.add(this.attrs.src);
+      m.redraw();
+    }
   }
 }
