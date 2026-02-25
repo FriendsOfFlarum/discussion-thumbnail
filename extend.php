@@ -11,8 +11,8 @@
 
 namespace FoF\DiscussionThumbnail;
 
-use Flarum\Extend;
 use Flarum\Api\Resource;
+use Flarum\Extend;
 
 return [
     (new Extend\Frontend('forum'))
