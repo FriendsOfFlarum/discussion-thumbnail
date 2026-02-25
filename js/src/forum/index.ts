@@ -3,6 +3,6 @@ import extendDiscussionListItem from "./extenders/extendDiscussionListItem";
 
 export { default as extend } from "./extend";
 
-app.initializers.add("fof/discussion-thumbnail", () => {
+app.initializers.add("fof-discussion-thumbnail", () => {
   extendDiscussionListItem();
 });
