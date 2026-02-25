@@ -1,5 +1,5 @@
-import Component, { ComponentAttrs } from 'flarum/common/Component';
-import type Mithril from 'mithril';
+import Component, { ComponentAttrs } from "flarum/common/Component";
+import type Mithril from "mithril";
 
 interface DiscussionThumbnailAttrs extends ComponentAttrs {
   src: string;
@@ -7,6 +7,11 @@ interface DiscussionThumbnailAttrs extends ComponentAttrs {
 
 export default class DiscussionThumbnail extends Component<DiscussionThumbnailAttrs> {
   view(): Mithril.Children {
-    return <img className="Avatar DiscussionListItem-thumbnail" src={this.attrs.src} />;
+    return (
+      <img
+        className="Avatar DiscussionListItem-thumbnail"
+        src={this.attrs.src}
+      />
+    );
   }
 }
