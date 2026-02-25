@@ -7,6 +7,8 @@ interface DiscussionThumbnailAttrs extends ComponentAttrs {
 
 export default class DiscussionThumbnail extends Component<DiscussionThumbnailAttrs> {
   view(): Mithril.Children {
-    return <img className="DiscussionListItem-thumbnail" src={this.attrs.src} />;
+    return (
+      <img className="DiscussionListItem-thumbnail" src={this.attrs.src} />
+    );
   }
 }

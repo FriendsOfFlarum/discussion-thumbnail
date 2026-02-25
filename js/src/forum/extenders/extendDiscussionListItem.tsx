@@ -14,7 +14,9 @@ export default function extendDiscussionListItem() {
     if (!image) return;
 
     const user = this.attrs.discussion.user();
-    const href = app.forum.attribute("fof-discussion-thumbnail.link_to_discussion")
+    const href = app.forum.attribute(
+      "fof-discussion-thumbnail.link_to_discussion",
+    )
       ? app.route.discussion(this.attrs.discussion)
       : user
         ? app.route.user(user)
