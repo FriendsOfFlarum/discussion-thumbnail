@@ -43,7 +43,15 @@ class AddDiscussionThumbnail
             && ($cached['date'] === null || $post->edited_at->isAfter($cached['date']));
 
         if ($cached === false || $stale) {
-            $content = $post->formatContent();
+            try {
+                $content = $post->formatContent();
+            } catch (\InvalidArgumentException $e) {
+                // Post content is not valid s9e XML (e.g. plain-text legacy content).
+                // Cache as no-image so we don't re-attempt on every request.
+                $this->cache->forever($key, ['url' => null, 'date' => $post->edited_at]);
+
+                return [];
+            }
 
             if (!$content) {
                 $this->cache->forever($key, ['url' => null, 'date' => null]);
