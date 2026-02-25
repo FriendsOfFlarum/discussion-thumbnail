@@ -18,14 +18,8 @@ use Illuminate\Contracts\Cache\Repository;
 
 class AddDiscussionThumbnail
 {
-    /**
-     * @var Repository
-     */
-    protected $cache;
-
-    public function __construct(Repository $cache)
+    public function __construct(protected Repository $cache)
     {
-        $this->cache = $cache;
     }
 
     public function __invoke(BasicDiscussionSerializer $serializer, Discussion $discussion): array
