@@ -15,7 +15,6 @@ use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Post\CommentPost;
 use Illuminate\Contracts\Cache\Repository;
-use Illuminate\Support\Arr;
 
 class AddDiscussionThumbnail
 {
@@ -29,7 +28,7 @@ class AddDiscussionThumbnail
         $this->cache = $cache;
     }
 
-    public function __invoke(BasicDiscussionSerializer $serializer, Discussion $discussion)
+    public function __invoke(BasicDiscussionSerializer $serializer, Discussion $discussion): array
     {
         $post = $discussion->firstPost;
 
@@ -37,29 +36,30 @@ class AddDiscussionThumbnail
             return [];
         }
 
-        $key = "fof-discussion-thumbnail.discussion.{$post->id}";
-        $cached = $this->cache->get($key);
-        $thumbnail = Arr::get($cached, 'url');
+        $key = "fof:discussion-thumbnail:discussion:{$post->id}";
+        $cached = $this->cache->get($key, false);
 
-        if (!$this->cache->has($key) || ($post->edited_at && Arr::has($cached, 'date') && $post->edited_at->isAfter($cached['date']))) {
+        $stale = is_array($cached) && $post->edited_at
+            && ($cached['date'] === null || $post->edited_at->isAfter($cached['date']));
+
+        if ($cached === false || $stale) {
             $content = $post->formatContent();
 
             if (!$content) {
+                $this->cache->forever($key, ['url' => null, 'date' => null]);
+
                 return [];
             }
 
             preg_match('/<img.+?src=[\"\'](.+?)[\"\'].*?>/i', $content, $match);
 
-            $thumbnail = @$match[1];
+            $url = $match[1] ?? null;
 
-            $this->cache->forever($key, $match ? [
-                'url'  => @$match[1],
-                'date' => $post->edited_at,
-            ] : null);
+            $this->cache->forever($key, ['url' => $url, 'date' => $post->edited_at]);
+
+            return ['customThumbnail' => $url];
         }
 
-        $attributes['customThumbnail'] = $thumbnail;
-
-        return $attributes;
+        return ['customThumbnail' => $cached['url'] ?? null];
     }
 }
