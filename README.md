@@ -4,6 +4,8 @@
 
 A [Flarum](http://flarum.org) extension. Replaces the author avatar in the discussion list with the first image found in the discussion's opening post.
 
+https://cdn.discuss.flarum.org/2026-02-25/1771984263-288896-fof-discussion-thumbnail.mp4
+
 ## How it works
 
 When the discussion list is rendered, each discussion's author avatar is replaced with a thumbnail of the first `<img>` found in the HTML of the first post. If the first post contains no image, the normal user avatar is shown instead.
