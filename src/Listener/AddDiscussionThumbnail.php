@@ -36,10 +36,13 @@ class AddDiscussionThumbnail
             return [];
         }
 
-        $key = "fof-discussion-thumbnail.discussion.{$post->id}";
+        $key = "fof:discussion-thumbnail:discussion:{$post->id}";
         $cached = $this->cache->get($key, false);
 
-        if ($cached === false || ($post->edited_at && isset($cached['date']) && $post->edited_at->isAfter($cached['date']))) {
+        $stale = is_array($cached) && $post->edited_at
+            && ($cached['date'] === null || $post->edited_at->isAfter($cached['date']));
+
+        if ($cached === false || $stale) {
             $content = $post->formatContent();
 
             if (!$content) {

@@ -5,13 +5,13 @@ import Tooltip from "flarum/common/components/Tooltip";
 import Link from "flarum/common/components/Link";
 import humanTime from "flarum/common/utils/humanTime";
 
-import DiscussionThumbnail, { failedSet } from "../components/DiscussionThumbnail";
+import DiscussionThumbnail from "../components/DiscussionThumbnail";
 
 export default function extendDiscussionListItem() {
   extend(DiscussionListItem.prototype, "contentItems", function (items) {
     const image = this.attrs.discussion.customThumbnail();
 
-    if (!image || failedSet.has(image)) return;
+    if (!image) return;
 
     const user = this.attrs.discussion.user();
     const href = app.forum.attribute(
