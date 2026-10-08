@@ -49,7 +49,9 @@ class AddDiscussionThumbnailFields
                             EloquentBuffer::load($discussion, 'firstPost', $relationship, $context);
                         }
 
-                        return $this->thumbnail($discussion->getRelation('firstPost'));
+                        // The buffer leaves out what it cannot load (a first
+                        // post that no longer exists): no thumbnail then.
+                        return $this->thumbnail($discussion->relationLoaded('firstPost') ? $discussion->getRelation('firstPost') : null);
                     };
                 }),
         ];
