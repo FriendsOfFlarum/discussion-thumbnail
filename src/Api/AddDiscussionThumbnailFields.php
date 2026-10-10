@@ -11,6 +11,8 @@
 
 namespace FoF\DiscussionThumbnail\Api;
 
+use Flarum\Api\Context;
+use Flarum\Api\Resource\EloquentBuffer;
 use Flarum\Api\Schema;
 use Flarum\Discussion\Discussion;
 use Flarum\Post\CommentPost;
@@ -27,45 +29,70 @@ class AddDiscussionThumbnailFields
         return [
             Schema\Str::make('customThumbnail')
                 ->nullable()
-                ->get(function (Discussion $discussion) {
-                    $post = $discussion->firstPost;
+                ->get(function (Discussion $discussion, Context $context) {
+                    // Batch the first posts through the relationship buffer:
+                    // one query for the page, not one per discussion. Reading
+                    // $discussion->firstPost here lazy-loaded each in turn.
+                    EloquentBuffer::add($discussion, 'firstPost');
 
-                    if (!($post instanceof CommentPost)) {
-                        return null;
-                    }
+                    return function () use ($discussion, $context) {
+                        if (!$discussion->relationLoaded('firstPost')) {
+                            // The discussions resource's own relationship, not
+                            // the request's primary resource: this field is
+                            // also serialized on discussions included in other
+                            // requests.
+                            $resource = $context->api->getResource('discussions');
 
-                    $key = "fof:discussion-thumbnail:discussion:{$post->id}";
-                    $cached = $this->cache->get($key, false);
+                            /** @var Schema\Relationship\ToOne|null $relationship */
+                            $relationship = collect($context->fields($resource))->first(fn ($field) => $field->name === 'firstPost');
 
-                    $stale = is_array($cached) && $post->edited_at
-                        && ($cached['date'] === null || $post->edited_at->isAfter($cached['date']));
-
-                    if ($cached === false || $stale) {
-                        try {
-                            $content = $post->formatContent();
-                        } catch (\InvalidArgumentException $e) {
-                            $this->cache->forever($key, ['url' => null, 'date' => $post->edited_at]);
-
-                            return null;
+                            EloquentBuffer::load($discussion, 'firstPost', $relationship, $context);
                         }
 
-                        if (!$content) {
-                            $this->cache->forever($key, ['url' => null, 'date' => null]);
-
-                            return null;
-                        }
-
-                        preg_match('/<img.+?src=[\"\'](.+?)[\"\'].*?>/i', $content, $match);
-
-                        $url = $match[1] ?? null;
-
-                        $this->cache->forever($key, ['url' => $url, 'date' => $post->edited_at]);
-
-                        return $url;
-                    }
-
-                    return $cached['url'] ?? null;
+                        // The buffer leaves out what it cannot load (a first
+                        // post that no longer exists): no thumbnail then.
+                        return $this->thumbnail($discussion->relationLoaded('firstPost') ? $discussion->getRelation('firstPost') : null);
+                    };
                 }),
         ];
+    }
+
+    protected function thumbnail(mixed $post): ?string
+    {
+        if (!($post instanceof CommentPost)) {
+            return null;
+        }
+
+        $key = "fof:discussion-thumbnail:discussion:{$post->id}";
+        $cached = $this->cache->get($key, false);
+
+        $stale = is_array($cached) && $post->edited_at
+            && ($cached['date'] === null || $post->edited_at->isAfter($cached['date']));
+
+        if ($cached === false || $stale) {
+            try {
+                $content = $post->formatContent();
+            } catch (\InvalidArgumentException $e) {
+                $this->cache->forever($key, ['url' => null, 'date' => $post->edited_at]);
+
+                return null;
+            }
+
+            if (!$content) {
+                $this->cache->forever($key, ['url' => null, 'date' => null]);
+
+                return null;
+            }
+
+            preg_match('/<img.+?src=[\"\'](.+?)[\"\'].*?>/i', $content, $match);
+
+            $url = $match[1] ?? null;
+
+            $this->cache->forever($key, ['url' => $url, 'date' => $post->edited_at]);
+
+            return $url;
+        }
+
+        return $cached['url'] ?? null;
     }
 }
